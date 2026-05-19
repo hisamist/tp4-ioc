@@ -1,0 +1,10 @@
+# Terraform sensitive variables - NEVER commit this file
+terraform.tfvars
+
+# State files
+*.tfstate
+*.tfstate.backup
+
+# Terraform directory
+.terraform/
+.terraform.lock.hcl

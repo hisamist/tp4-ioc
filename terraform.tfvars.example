@@ -1,0 +1,4 @@
+project_name      = "mon-app"
+postgres_password = "CHANGE_ME"        ← faux mot de passe
+postgres_db       = "appdb"
+app_port          = 3000
