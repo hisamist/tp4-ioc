@@ -55,9 +55,9 @@ jobs:
           name: terraform-plan
           path: tfplan
 
-  # ===== JOB 3 : Apply (sur main) =====
-  apply:
-    name: Terraform Apply
+  # ===== JOB 3 : Apply + Configure (sur main) =====
+  deploy:
+    name: Terraform Apply + Ansible
     runs-on: ubuntu-latest
     needs: validate
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -75,14 +75,6 @@ jobs:
         run: terraform apply -auto-approve
         env:
           TF_VAR_postgres_password: ${{ secrets.POSTGRES_PASSWORD }}
-
-  # ===== JOB 4 : Ansible (apres apply) =====
-  configure:
-    name: Ansible Configure
-    runs-on: ubuntu-latest
-    needs: apply
-    steps:
-      - uses: actions/checkout@v4
 
       - name: Installer Ansible
         run: |

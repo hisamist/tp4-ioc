@@ -20,7 +20,7 @@
 
     - name: Afficher le statut des conteneurs
       ansible.builtin.debug:
-        msg: "{{ item.item }} -> {{ item.container.State.Status }}"
+        msg: "{{ item.item }} -> {{ item.container.State.Status if item.exists else 'non trouve' }}"
       loop: "{{ container_info.results }}"
 
     # ---- Test PostgreSQL ----
