@@ -1,0 +1,68 @@
+---
+- name: Configurer l'infrastructure Docker
+  hosts: local
+  gather_facts: false
+
+  vars:
+    project_name: "mon-app"
+    containers:
+      - "{{ project_name }}-app"
+      - "{{ project_name }}-db"
+      - "{{ project_name }}-redis"
+
+  tasks:
+    # ---- Verification des conteneurs ----
+    - name: Verifier que les conteneurs tournent
+      community.docker.docker_container_info:
+        name: "{{ item }}"
+      register: container_info
+      loop: "{{ containers }}"
+
+    - name: Afficher le statut des conteneurs
+      ansible.builtin.debug:
+        msg: "{{ item.item }} -> {{ item.container.State.Status }}"
+      loop: "{{ container_info.results }}"
+
+    # ---- Test PostgreSQL ----
+    - name: Tester la connexion PostgreSQL
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}-db"
+        command: pg_isready -U postgres
+      register: pg_result
+
+    - name: Afficher le statut PostgreSQL
+      ansible.builtin.debug:
+        msg: "PostgreSQL: {{ pg_result.stdout }}"
+
+    # ---- Test Redis ----
+    - name: Tester la connexion Redis
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}-redis"
+        command: redis-cli ping
+      register: redis_result
+
+    - name: Afficher le statut Redis
+      ansible.builtin.debug:
+        msg: "Redis: {{ redis_result.stdout }}"
+
+    # ---- Configurer Nginx ----
+    - name: Copier la configuration Nginx personnalisee
+      ansible.builtin.shell: |
+        docker cp {{ playbook_dir }}/templates/default.conf {{ project_name }}-app:/etc/nginx/conf.d/default.conf
+      notify: Recharger Nginx
+
+    # ---- Rapport final ----
+    - name: Rapport de sante
+      ansible.builtin.debug:
+        msg: |
+          === RAPPORT DE SANTE ===
+          PostgreSQL : {{ pg_result.stdout }}
+          Redis      : {{ redis_result.stdout }}
+          Conteneurs : tous en etat running
+          ========================
+
+  handlers:
+    - name: Recharger Nginx
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}-app"
+        command: nginx -s reload
