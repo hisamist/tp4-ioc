@@ -1,10 +1,18 @@
-# Terraform sensitive variables - NEVER commit this file
-terraform.tfvars
-
-# State files
+# Terraform
 *.tfstate
+*.tfstate.*
 *.tfstate.backup
-
-# Terraform directory
 .terraform/
 .terraform.lock.hcl
+tfplan
+crash.log
+
+# Variables avec secrets
+terraform.tfvars
+
+# Ansible
+*.retry
+
+# OS
+.DS_Store
+Thumbs.db

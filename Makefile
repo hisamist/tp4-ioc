@@ -22,7 +22,7 @@ fmt: ## Formater les fichiers .tf
 	$(TERRAFORM) fmt -recursive
 
 fmt-check: ## Verifier le formatage (sans modifier)
-	$(TERRAFORM) fmt -recursive -check
+	$(TERRAFORM) fmt -check -recursive
 
 validate: ## Valider la configuration Terraform
 	$(TERRAFORM) validate
